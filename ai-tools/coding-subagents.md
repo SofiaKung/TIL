@@ -59,31 +59,12 @@ Subagents are stored in:
 **Purpose**: Design philosophy and universal coding standards
 
 **What goes here**:
-- Design aesthetic (e.g., “www.sample.io-inspired, minimal, technical”)
-- Color system and typography
+- Design aesthetic and brand guidelines
 - Code patterns to follow/avoid
 - File organization principles
 
-**Example**:
-
-```markdown
-# ButterFlow - Claude Code Guide
-
-## Core Philosophy
-Desi: www.sample.io gn DNAaesthetic - clean, minimal, data-first
-
-## Design System
--Primary: Butter (#F5C842) - use sparingly
--Typography: League Spartan (headers), Inter (body)
--Mobile-first, square corners
-
-## Code Standards
--Prefer editing over creating new files
--Follow existing patterns before inventing
-```
-
 **Length**: As needed, but scannable
-**Updates**: Rarely (this is your “constitution”)
+**Updates**: Rarely (this is your "constitution")
 
 ---
 
@@ -171,43 +152,6 @@ nano .claude/agents/code-reviewer.md
 - Quality checklists
 - Common mistakes to avoid
 - Role-specific voice/style rules
-
-**Example**: `.claude/agents/blog-agent.md`
-
-```markdown
----
-name: blog-agent
-description: Use PROACTIVELY for creating blog content following brand guidelines
-tools: Read, Write, Bash, Grep, Glob
-model: sonnet
----
-
-# Blog Agent - Content Creation Workflow
-
-You are a technical content creator specializing in data-driven blog posts.
-
-## Workflow
-1. Clarify topic and category (Strategy/Safety/Infrastructure)
-2. Write in data-driven voice (include metrics)
-3. Create /content/blog/[slug].md with frontmatter
-4. Run `npm run build:blog`
-5. Verify rendering
-
-## Brand Voice
-- Data-driven: "99.8% success rate" not "very reliable"
-- Technical but accessible
-- No marketing fluff
-
-## Quality Checklist
-- [ ] Title <60 chars, double quotes if apostrophes
-- [ ] Includes real metrics
-- [ ] CTA links to #templates or #booking
-
-## Common Mistakes to Avoid
-- Vague claims without data
-- Marketing jargon
-- Overly long titles
-```
 
 **Example**: `.claude/agents/code-reviewer.md`
 
@@ -299,27 +243,6 @@ Provide feedback organized by priority:
 - User guides
 - Feature specifications
 
-**Example**: `docs/PRD_BLOG_SYSTEM.md`
-
-```markdown
-# Blog System - Product Requirements
-
-## Goals
--Zero-dependency markdown blog
--Pinecone-inspired design
--<5ms parse time per post
-
-## Technical Spec
--Custom markdown parser (H2-H4, bold, links, code blocks)
--Build-time generation with gray-matter
--TypeScript interfaces for type safety
-
-## Success Metrics
--Time on page: >3 min
--Parse time: <5ms
--Mobile responsive: 100%
-```
-
 **Length**: Comprehensive (this is the spec)
 **Updates**: When product requirements change
 
@@ -394,71 +317,12 @@ Blog migration (inline constants → markdown files):
 
 ---
 
-## Template Comparison
-
-### Minimal (Solo Developer)
-
-```
-CLAUDE.md              # Design + coding standards
-.claude/
-  └── agents/
-      └── dev-agent.md # General development workflow
-.contexts/
-  └── main-context.md  # Architecture decisions
-```
-
-### Production (Team)
-
-```
-CLAUDE.md              # Project-wide standards
-.claude/
-  └── agents/
-      ├── blog-agent.md    # Content workflow
-      ├── review-agent.md  # Code review workflow
-      └── test-agent.md    # Testing workflow
-.contexts/
-  ├── blog-context.md  # Blog decisions
-  └── api-context.md   # API decisions
-docs/
-  ├── PRD_BLOG.md      # Blog requirements
-  └── API_DOCS.md      # API documentation
-```
-
----
-
 ## Advanced Subagent Usage
 
 ### Automatic Delegation
-
-Claude proactively invokes subagents when:
-- Task matches subagent's description
-- Description includes action-oriented language ("use PROACTIVELY", "MUST BE USED")
-- Current context aligns with subagent purpose
-
-### Explicit Invocation
-
-```
-> Use the code-reviewer subagent to check my recent changes
-> Have the debugger subagent investigate this error
-> Ask the test-runner subagent to fix failing tests
-```
+Claude proactively invokes subagents when task matches description with action-oriented language ("use PROACTIVELY", "MUST BE USED")
 
 ### Resumable Subagents
-
-Subagents can be resumed with full context:
-
-```markdown
-# First invocation returns agentId: "abc123"
-
-# Resume later with context preserved:
-> Resume the code-analyzer subagent (abc123) and check error handling patterns
-```
-
-**Use cases**:
-- Long-running research across multiple sessions
-- Iterative refinement maintaining context
-- Multi-step workflows with sequential tasks
-
 ### Chaining Subagents
 
 ```
@@ -483,4 +347,4 @@ Subagents can be resumed with full context:
 **For Codebase:**
 - Self-documenting architecture
 - Reduced onboarding time
-- Living knowledge base
+- Living knowledge baseSubagents can be resumed with full context using their agent ID for long-running research or multi-step workflows
