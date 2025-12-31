@@ -1,10 +1,10 @@
-# [TIL] Managing context with subagents assisted coding
+# TIL: Structuring AI Context with .agents, .contexts, and Docs
 
 Date: December 28, 2025
 
+
 This is an ongoing doc to document all learnings about coding with sub agents
 
-# TIL: Structuring AI Context with .agents, .contexts, and Docs
 
 > Building ButterFlow taught me how to structure context for AI coding agents. This pattern eliminated repetitive explanations and improved consistency from 60% to 95%+.
 
