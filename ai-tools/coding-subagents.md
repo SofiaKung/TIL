@@ -1,11 +1,6 @@
 # [TIL] Managing context with subagents assisted coding
 
 Date: December 28, 2025
-Source URL: https://code.claude.com/docs/en/sub-agents
-Status: In progress
-Type: 📚 TIL
-Topics: Product
-content generation: No
 
 This is an ongoing doc to document all learnings about coding with sub agents 
 
