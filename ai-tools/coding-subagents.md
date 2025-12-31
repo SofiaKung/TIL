@@ -1,0 +1,486 @@
+# [TIL] Managing context with subagents assisted coding
+
+Date: December 28, 2025
+Source URL: https://code.claude.com/docs/en/sub-agents
+Status: In progress
+Type: 📚 TIL
+Topics: Product
+content generation: No
+
+This is an ongoing doc to document all learnings about coding with sub agents 
+
+# TIL: Structuring AI Context with .agents, .contexts, and Docs
+
+> Building ButterFlow taught me how to structure context for AI coding agents. This pattern eliminated repetitive explanations and improved consistency from 60% to 95%+.
+> 
+
+---
+
+**Resources**: 
+
+- [https://code.claude.com/docs/en/sub-agents](https://code.claude.com/docs/en/sub-agents)
+
+## The Problem
+
+Working with AI assistants, I kept hitting the same issues:
+- **Repeating myself** every session about design patterns and brand voice
+- **Inconsistent output** as AI “forgot” earlier decisions
+- **Context loss** in long conversations
+- **No persistent knowledge** between sessions
+
+---
+
+## The Solution: Subagents + 4-Layer Context Structure
+
+### Subagent File Structure
+
+Subagents are stored in:
+- **Project subagents**: `.claude/agents/` (highest priority, version controlled)
+- **User subagents**: `~/.claude/agents/` (global, across all projects)
+
+### Complete Project Structure
+
+```
+/project-root
+├── CLAUDE.md              # Project-wide instructions
+├── .claude/
+│   └── agents/            # Subagent configurations
+│       └── blog-agent.md
+├── .contexts/             # Technical decisions
+│   └── blog-context.md
+└── docs/                  # User-facing documentation
+    └── PRD_BLOG_SYSTEM.md
+```
+
+---
+
+## Layer 1: CLAUDE.md - Project Constitution
+
+**Purpose**: Design philosophy and universal coding standards
+
+**What goes here**:
+- Design aesthetic (e.g., “www.sample.io-inspired, minimal, technical”)
+- Color system and typography
+- Code patterns to follow/avoid
+- File organization principles
+
+**Example**:
+
+```markdown
+# ButterFlow - Claude Code Guide
+
+## Core Philosophy
+Desi: www.sample.io gn DNAaesthetic - clean, minimal, data-first
+
+## Design System
+-Primary: Butter (#F5C842) - use sparingly
+-Typography: League Spartan (headers), Inter (body)
+-Mobile-first, square corners
+
+## Code Standards
+-Prefer editing over creating new files
+-Follow existing patterns before inventing
+```
+
+**Length**: As needed, but scannable
+**Updates**: Rarely (this is your “constitution”)
+
+---
+
+## Subagent Configuration
+
+### Basic Subagent File Format
+
+Subagents use YAML frontmatter followed by the system prompt:
+
+```markdown
+---
+name: your-subagent-name                    # Required: lowercase with hyphens
+description: When to use this subagent      # Required: triggers auto-delegation
+tools: Read, Grep, Glob, Bash               # Optional: limit tool access
+model: sonnet                               # Optional: sonnet, opus, haiku, 'inherit'
+permissionMode: default                     # Optional: permission handling
+skills: skill1, skill2                      # Optional: auto-loaded skills
+---
+
+Your subagent's system prompt goes here.
+Include specific instructions, examples, and constraints.
+```
+
+### Key Configuration Fields
+
+**name**: Lowercase with hyphens (e.g., `code-reviewer`, `test-runner`)
+
+**description**: Action-oriented language for auto-delegation
+- ✅ "Use PROACTIVELY to review code after changes"
+- ✅ "MUST BE USED to run tests and fix failures"
+- ❌ "A code reviewer" (too vague)
+
+**tools**: Comma-separated list (limits access for security/focus)
+- Common: `Read, Grep, Glob, Bash`
+- Exploration only: `Read, Grep, Glob`
+- Omit to inherit all tools from parent
+
+**model**:
+- `sonnet` - Balanced (default for most tasks)
+- `opus` - Most capable, complex reasoning
+- `haiku` - Fast, lightweight
+- `'inherit'` - Use parent conversation's model
+
+### Built-in Subagents
+
+**general-purpose**
+- Model: Sonnet
+- Tools: All tools
+- Use: Complex multi-step tasks requiring exploration + modification
+
+**explore**
+- Model: Haiku (fast)
+- Tools: Read-only (Glob, Grep, Read, Bash read-only commands)
+- Use: Fast codebase searching without modifications
+- Thoroughness: quick, medium, very thorough
+
+**plan**
+- Model: Sonnet
+- Tools: Exploration tools
+- Use: Research codebase before creating implementation plans
+
+### Managing Subagents
+
+**Recommended: Use `/agents` command**
+```
+/agents
+```
+Interactive interface for viewing, creating, editing, and deleting subagents.
+
+**Manual Creation**
+```bash
+mkdir -p .claude/agents
+nano .claude/agents/code-reviewer.md
+```
+
+---
+
+## Layer 2: .claude/agents/ - Task Workflows (Subagents)
+
+**Purpose**: Executable workflows for specific roles (content writer, code reviewer, etc.)
+
+**What goes here**:
+- YAML frontmatter configuration
+- Exact workflow steps in system prompt
+- Quality checklists
+- Common mistakes to avoid
+- Role-specific voice/style rules
+
+**Example**: `.claude/agents/blog-agent.md`
+
+```markdown
+---
+name: blog-agent
+description: Use PROACTIVELY for creating blog content following brand guidelines
+tools: Read, Write, Bash, Grep, Glob
+model: sonnet
+---
+
+# Blog Agent - Content Creation Workflow
+
+You are a technical content creator specializing in data-driven blog posts.
+
+## Workflow
+1. Clarify topic and category (Strategy/Safety/Infrastructure)
+2. Write in data-driven voice (include metrics)
+3. Create /content/blog/[slug].md with frontmatter
+4. Run `npm run build:blog`
+5. Verify rendering
+
+## Brand Voice
+- Data-driven: "99.8% success rate" not "very reliable"
+- Technical but accessible
+- No marketing fluff
+
+## Quality Checklist
+- [ ] Title <60 chars, double quotes if apostrophes
+- [ ] Includes real metrics
+- [ ] CTA links to #templates or #booking
+
+## Common Mistakes to Avoid
+- Vague claims without data
+- Marketing jargon
+- Overly long titles
+```
+
+**Example**: `.claude/agents/code-reviewer.md`
+
+```markdown
+---
+name: code-reviewer
+description: Expert code review specialist. Use PROACTIVELY after writing or modifying code.
+tools: Read, Grep, Glob, Bash
+model: inherit
+---
+
+You are a senior code reviewer ensuring high standards.
+
+When invoked:
+1. Run git diff to see recent changes
+2. Focus on modified files only
+3. Begin review immediately
+
+Review checklist:
+- Code clarity and readability
+- Proper naming conventions
+- No code duplication
+- Error handling
+- Security (no exposed secrets, SQL injection, XSS)
+- Input validation
+- Test coverage
+- Performance considerations
+
+Provide feedback organized by priority:
+- Critical issues (must fix)
+- Warnings (should fix)
+- Suggestions (consider improving)
+```
+
+**Length**: ~200 lines max (action-oriented playbook)
+**Updates**: When workflow changes
+
+---
+
+## Layer 3: .contexts/ - Technical Decisions
+
+**Purpose**: Living record of architecture and “why we built it this way”
+
+**What goes here**:
+- Current architecture
+- Key decisions and trade-offs
+- Alternatives considered
+- Future roadmap
+
+**Example**: `.contexts/blog-context.md`
+
+```markdown
+# Blog System - Technical Context
+
+## Current Architecture (v2.0)
+-Individual .md files in /content/blog/
+-Build-time generation (zero runtime cost)
+-Custom parser (~200 lines, zero deps)
+
+## Key Decisions
+
+### Why Individual Markdown Files?
+-Better Git workflow (one file per post)
+-CMS-ready for future
+-Portable content
+
+### Why Custom Parser vs Libraries?
+-Lightweight: 3KB vs 25KB+ (marked, remark)
+-Zero dependencies
+-Exact features we need
+
+## Future Roadmap
+-[ ] Search (at 10+ posts)
+-[ ] Syntax highlighting (needed soon)
+```
+
+**Length**: ~300 lines max (prune quarterly)
+**Updates**: When architecture changes
+
+---
+
+## Layer 4: docs/ - Product Requirements & User Docs
+
+**Purpose**: Product specs and external documentation
+
+**What goes here**:
+- PRDs (Product Requirements Documents)
+- API documentation
+- User guides
+- Feature specifications
+
+**Example**: `docs/PRD_BLOG_SYSTEM.md`
+
+```markdown
+# Blog System - Product Requirements
+
+## Goals
+-Zero-dependency markdown blog
+-Pinecone-inspired design
+-<5ms parse time per post
+
+## Technical Spec
+-Custom markdown parser (H2-H4, bold, links, code blocks)
+-Build-time generation with gray-matter
+-TypeScript interfaces for type safety
+
+## Success Metrics
+-Time on page: >3 min
+-Parse time: <5ms
+-Mobile responsive: 100%
+```
+
+**Length**: Comprehensive (this is the spec)
+**Updates**: When product requirements change
+
+---
+
+## Real Results
+
+### Before:
+
+- Explaining context: **5-10 messages/session**
+- Brand inconsistency: **40%** needed editing
+- Repeating design decisions: **Every session**
+
+### After:
+
+- Explaining context: **0 messages** (auto-loaded)
+- Brand inconsistency: **<5%**
+- Design decisions: **Persistent across sessions**
+
+### Biggest Win:
+
+Blog migration (inline constants → markdown files):
+- **Without**: 50+ messages explaining architecture
+- **With**: AI read `.contexts/blog-context.md`, understood v1.0 → v2.0, executed flawlessly
+
+---
+
+## Key Principles
+
+1. **Context Over Conversation** - Write it once in structured docs, not chat
+2. **Workflows Over Instructions** - “1. Do X, 2. Do Y” beats “write good code”
+3. **Decisions Over Details** - Document **why**, not **what** (code shows what)
+4. **Living Over Static** - Update when code changes
+5. **Scannable Over Comprehensive** - Headers, bullets, <300 lines
+
+---
+
+## Do's and Don'ts
+
+### ✅ Do
+
+**Subagent Configuration:**
+- Use YAML frontmatter with proper fields (name, description, tools)
+- Write action-oriented descriptions for auto-delegation
+- Limit tool access to only what's needed
+- Version control project subagents (`.claude/agents/`)
+- Use `/agents` command for easy management
+- Start with Claude-generated agents, then customize
+
+**Context Structure:**
+- Keep .claude/agents/ <200 lines (action playbook)
+- Keep .contexts/ <300 lines (decision log)
+- Update when code changes (living docs)
+- Use headers, bullets, examples (scannable)
+- Version major changes (v1.0, v2.0)
+
+### ❌ Don't
+
+**Subagent Anti-Patterns:**
+- Create over-generalized "do everything" subagents
+- Write vague descriptions ("A code reviewer" vs "Use PROACTIVELY to review code")
+- Grant excessive tool access (security risk)
+- Skip YAML frontmatter configuration
+- Forget to version control project subagents
+
+**Context Anti-Patterns:**
+- Write 500+ line novels (won't be read)
+- Duplicate across files (DRY applies here)
+- Include exact code (defeats the purpose)
+- Let it get stale (context rot = noise)
+- Over-specify (guide, don't dictate)
+
+---
+
+## Template Comparison
+
+### Minimal (Solo Developer)
+
+```
+CLAUDE.md              # Design + coding standards
+.claude/
+  └── agents/
+      └── dev-agent.md # General development workflow
+.contexts/
+  └── main-context.md  # Architecture decisions
+```
+
+### Production (Team)
+
+```
+CLAUDE.md              # Project-wide standards
+.claude/
+  └── agents/
+      ├── blog-agent.md    # Content workflow
+      ├── review-agent.md  # Code review workflow
+      └── test-agent.md    # Testing workflow
+.contexts/
+  ├── blog-context.md  # Blog decisions
+  └── api-context.md   # API decisions
+docs/
+  ├── PRD_BLOG.md      # Blog requirements
+  └── API_DOCS.md      # API documentation
+```
+
+---
+
+## Advanced Subagent Usage
+
+### Automatic Delegation
+
+Claude proactively invokes subagents when:
+- Task matches subagent's description
+- Description includes action-oriented language ("use PROACTIVELY", "MUST BE USED")
+- Current context aligns with subagent purpose
+
+### Explicit Invocation
+
+```
+> Use the code-reviewer subagent to check my recent changes
+> Have the debugger subagent investigate this error
+> Ask the test-runner subagent to fix failing tests
+```
+
+### Resumable Subagents
+
+Subagents can be resumed with full context:
+
+```markdown
+# First invocation returns agentId: "abc123"
+
+# Resume later with context preserved:
+> Resume the code-analyzer subagent (abc123) and check error handling patterns
+```
+
+**Use cases**:
+- Long-running research across multiple sessions
+- Iterative refinement maintaining context
+- Multi-step workflows with sequential tasks
+
+### Chaining Subagents
+
+```
+> First use the code-analyzer subagent to find performance issues,
+> then use the optimizer subagent to fix them
+```
+
+---
+
+## Why This Works
+
+**For AI:**
+- Structured format is easy to parse
+- Persistent context across sessions
+- Clear scope (which file for what)
+
+**For Humans:**
+- New teammates read same context as AI
+- Documents decisions as you make them
+- Forces clear articulation
+
+**For Codebase:**
+- Self-documenting architecture
+- Reduced onboarding time
+- Living knowledge base

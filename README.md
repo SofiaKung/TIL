@@ -2,7 +2,24 @@
 
 A collection of things I learn day to day across various technologies and tools.
 
+## Naming Convention
+
+**Files:**
+- All lowercase
+- Hyphens for multi-word concepts: `async-basics.md`
+- Use `.md` for markdown
+- Descriptive but concise: `window-functions.md` not `how-to-use-window-functions-in-sql.md`
+
+**Folders:**
+- Lowercase, single word preferred: `python/`, `git/`
+- Hyphens if needed: `machine-learning/`, `data-engineering/`
+- Organized by topic/technology
+
 ## Categories
+
+### [AI Tools](ai-tools/)
+
+- [Coding Subagents](ai-tools/coding-subagents.md) - Overview of specialized AI coding subagents and their use cases
 
 ### [n8n](n8n/)
 
