@@ -265,24 +265,9 @@ Provide feedback organized by priority:
 
 ## Real Results
 
-### Before:
+**Impact**: Context explanation dropped from 5-10 messages/session to 0. Brand inconsistency reduced from 40% to <5%.
 
-- Explaining context: **5-10 messages/session**
-- Brand inconsistency: **40%** needed editing
-- Repeating design decisions: **Every session**
-
-### After:
-
-- Explaining context: **0 messages** (auto-loaded)
-- Brand inconsistency: **<5%**
-- Design decisions: **Persistent across sessions**
-
-### Biggest Win:
-
-Blog migration (inline constants → markdown files):
-
-- **Without**: 50+ messages explaining architecture
-- **With**: AI read `.contexts/blog-context.md`, understood v1.0 → v2.0, executed flawlessly
+**Biggest Win**: Blog migration - AI read `.contexts/blog-context.md`, understood v1.0 → v2.0, executed flawlessly (vs 50+ messages without it)
 
 ---
 
@@ -300,40 +285,18 @@ Blog migration (inline constants → markdown files):
 
 ### ✅ Do
 
-**Subagent Configuration:**
-
-- Use YAML frontmatter with proper fields (name, description, tools)
-- Write action-oriented descriptions for auto-delegation
+- Use YAML frontmatter with action-oriented descriptions
 - Limit tool access to only what's needed
-- Version control project subagents (`.claude/agents/`)
-- Use `/agents` command for easy management
-- Start with Claude-generated agents, then customize
-
-**Context Structure:**
-
-- Keep .claude/agents/ <200 lines (action playbook)
-- Keep .contexts/ <300 lines (decision log)
+- Version control project subagents
+- Keep files scannable: <200 lines (agents), <300 lines (contexts)
 - Update when code changes (living docs)
-- Use headers, bullets, examples (scannable)
-- Version major changes (v1.0, v2.0)
 
 ### ❌ Don't
 
-**Subagent Anti-Patterns:**
-
 - Create over-generalized "do everything" subagents
-- Write vague descriptions ("A code reviewer" vs "Use PROACTIVELY to review code")
-- Grant excessive tool access (security risk)
-- Skip YAML frontmatter configuration
-- Forget to version control project subagents
-
-**Context Anti-Patterns:**
-
-- Write 500+ line novels (won't be read)
-- Duplicate across files (DRY applies here)
-- Include exact code (defeats the purpose)
-- Let it get stale (context rot = noise)
-- Over-specify (guide, don't dictate)
+- Write vague descriptions or 500+ line novels
+- Grant excessive tool access
+- Let docs get stale or duplicate content
 
 ---
 
@@ -372,4 +335,4 @@ Claude proactively invokes subagents when task matches description with action-o
 
 - Self-documenting architecture
 - Reduced onboarding time
-- Living knowledge baseSubagents can be resumed with full context using their agent ID for long-running research or multi-step workflows
+- Living knowledge baseSubagents can be resumed with
